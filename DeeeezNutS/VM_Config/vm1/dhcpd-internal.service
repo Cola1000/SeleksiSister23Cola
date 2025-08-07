@@ -1,0 +1,13 @@
+[Unit]
+Description=DHCPv4 Server on internal network - Furina
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=forking
+RuntimeDirectory=dhcpd4
+ExecStart=/usr/bin/dhcpd -4 -q -cf /etc/dhcpd.conf -pf /run/dhcpd4/dhcpd.pid enp0s3
+PIDFile=/run/dhcpd4/dhcpd.pid
+
+[Install]
+WantedBy=multi-user.target

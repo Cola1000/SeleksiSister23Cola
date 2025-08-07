@@ -1,0 +1,9 @@
+$TTL 86400
+@	IN SOA	ns1.example.local. root.example.local. 	(
+	2025080601 3600 1800 604800 86400		)
+;
+@	IN NS	ns1
+ns1	IN A	10.0.0.10
+proxy	IN A	10.0.0.40	; VM4 rev-prox
+web	IN A	10.0.0.20	; VM2 HTTP
+client	IN A	10.0.0.30	; VM3

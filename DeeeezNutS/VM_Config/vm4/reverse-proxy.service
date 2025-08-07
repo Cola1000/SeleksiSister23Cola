@@ -1,0 +1,12 @@
+[Unit]
+Description=Reverse Proxy (Python stdlib)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/reverse_proxy/reverse_proxy.py
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target

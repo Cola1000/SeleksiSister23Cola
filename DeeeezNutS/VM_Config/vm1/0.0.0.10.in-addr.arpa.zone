@@ -1,0 +1,9 @@
+$TTL	86400
+@	IN SOA	ns1.example.local. root.example.local. 	(
+	2025080601 3600 1800 604800 86400		)
+;
+@	IN NS	ns1.example.local.
+10	IN PTR	ns1.example.local.
+20	IN PTR	web.example.local.
+30	IN PTR	client.example.local.
+40	IN PTR	proxy.example.local.
