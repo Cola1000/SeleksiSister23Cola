@@ -1,0 +1,24 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build mandelbrot",
+      "type": "shell",
+      "command": "C:/mingw64/bin/g++.exe",
+      "args": [
+        "-std=c++20",
+        "-O3",
+        "${file}",
+        "-IC:/mingw64/include",
+        "-IC:/mingw64/include/SDL3",
+        "-LC:/mingw64/lib",
+        "-lSDL3",
+        "=lSDL3main",
+        "-mwindows",
+        "-o",
+        "${fileBasenameNoExtension}.exe"
+      ],
+      "group": "build"
+    }
+  ]
+}
