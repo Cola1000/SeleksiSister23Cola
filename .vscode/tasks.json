@@ -13,7 +13,7 @@
         "-IC:/mingw64/include/SDL3",
         "-LC:/mingw64/lib",
         "-lSDL3",
-        "=lSDL3main",
+        "-lpthread",
         "-mwindows",
         "-o",
         "${fileBasenameNoExtension}.exe"
