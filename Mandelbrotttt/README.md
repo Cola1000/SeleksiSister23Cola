@@ -185,17 +185,22 @@ g++ main.cpp src/*.cpp -Iheader -std=c++17 -O3 -lSDL3 -o output
 
 ### Benchmarks:
 - Default
+
 ![Benchmark result](img/benchmark/benchmark(default).png)
 
 - 5000 x 5000 px
+
 ![Benchmark result](img/benchmark/benchmark(5000x5000).png)
 
 ### Fractals:
 - Mandelbrot
+
 ![Mandelbrot](img/mandelbrot.bmp)
 
 - Julia Set
+
 ![Julia Set](img/fractal.bmp)
 
 ### Wife:
+
 ![Wife](img/wife.png)
