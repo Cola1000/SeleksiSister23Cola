@@ -22,6 +22,7 @@ public:
 
     double minRe, maxRe, minIm, maxIm;
     double reFactor, imFactor;
+
     void zoomAt(int mx, int my, int dir);
     void pan(int dx, int dy);
 

@@ -117,6 +117,7 @@
     "ratio": "cpp",
     "iomanip": "cpp",
     "semaphore": "cpp",
-    "stop_token": "cpp"
+    "stop_token": "cpp",
+    "filesystem": "cpp"
   }
 }

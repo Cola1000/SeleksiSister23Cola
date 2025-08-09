@@ -1,37 +1,46 @@
 #include "image_save.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
-#include <SDL3/SDL.h>
 #include <vector>
-#include <iostream>
 #include <cstring>
+#include <iostream>
+#include <filesystem>
 
-void save_bmp_from_buffer(const uint32_t* pixels, int w, int h) {
-    SDL_Surface* surf = SDL_CreateSurface(w, h, SDL_PIXELFORMAT_ARGB8888);
-    if (!surf) {
-        std::cerr << "Failed to create SDL_Surface\n";
-        return;
-    }
-    
-    // Copy pixel data to surface
-    memcpy(surf->pixels, pixels, w * h * sizeof(uint32_t));
-    
-    if (SDL_SaveBMP(surf, "./img/output.bmp") == 0) {
-        std::cout << "Saved output.bmp\n";
-    } else {
-        std::cerr << "BMP save failed: " << SDL_GetError() << "\n";
-    }
-    SDL_DestroySurface(surf);
+static void ensure_parent(const std::string& path) {
+    try {
+        std::filesystem::path p(path);
+        auto dir = p.parent_path();
+        if (!dir.empty() && !std::filesystem::exists(dir)) {
+            std::filesystem::create_directories(dir);
+        }
+    } catch (...) {}
 }
 
-void save_png_from_buffer(const uint32_t* pixels, int w, int h) {
-    std::vector<uint8_t> buf(w*h*4);
-    for(int y=0;y<h;++y)
-        std::memcpy(&buf[(h-1-y)*w*4], &pixels[y*w], w*4);
-    if (stbi_write_png("./img/output.png", w,h,4, buf.data(), w*4))
-        std::cout<<"Saved output.png\n";
-    else
-        std::cerr<<"PNG save failed\n";
+void save_bmp_from_buffer(const uint32_t* pixels, int w, int h, const std::string& path) {
+    ensure_parent(path);
+    std::vector<uint8_t> buf(w * h * 4);
+    // Flip vertically for conventional top-left origin
+    for (int y = 0; y < h; ++y) {
+        std::memcpy(&buf[(h-1-y) * w * 4], &pixels[y * w], w * 4);
+    }
+    if (stbi_write_bmp(path.c_str(), w, h, 4, buf.data())) {
+        std::cout << "Saved " << path << "\n";
+    } else {
+        std::cerr << "BMP save failed: " << path << "\n";
+    }
+}
+
+void save_png_from_buffer(const uint32_t* pixels, int w, int h, const std::string& path) {
+    ensure_parent(path);
+    std::vector<uint8_t> buf(w * h * 4);
+    for (int y = 0; y < h; ++y) {
+        std::memcpy(&buf[(h-1-y) * w * 4], &pixels[y * w], w * 4);
+    }
+    if (stbi_write_png(path.c_str(), w, h, 4, buf.data(), w * 4)) {
+        std::cout << "Saved " << path << "\n";
+    } else {
+        std::cerr << "PNG save failed: " << path << "\n";
+    }
 }
 
 // Legacy functions (IDK WHY IT DOESN'T WORK)

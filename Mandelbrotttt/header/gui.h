@@ -1,9 +1,6 @@
 #ifndef GUI_H
 #define GUI_H
 
-#define SDL_MAIN_HANDLED  
-
-#include <SDL3/SDL_main.h>
 #include <SDL3/SDL.h>
 #include <string>
 #include "mandelbrot.h"
@@ -11,7 +8,7 @@
 
 class Gui {
 public:
-    Gui(int argc, char* argv[]);
+    Gui(int w, int h, bool useGPU, bool useSingle);
     ~Gui();
 
     int run();
@@ -20,11 +17,11 @@ private:
     SDL_Window*   window   = nullptr;
     SDL_Renderer* renderer = nullptr;
     SDL_Texture*  texture  = nullptr;
-    int width, height;
+
+    int  width, height;
     bool useGPU;
-    bool showJulia;
-    bool useSignle;
-    bool doBenchmark;
+    bool useSingle;
+    bool showJulia = false;
 
     Fractal mandel;
     Julia   julia;
