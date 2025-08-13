@@ -15,7 +15,7 @@ furina_compile.bat
 ### Linux/Mac
 Run the shell script:
 ```bash
-./furina_compile.sh
+bash furina_compile.sh
 ```
 
 ## Running the Program
