@@ -1,0 +1,66 @@
+* {
+  font-family: "JetBrainsMono Nerd Font","Symbols Nerd Font","Font Awesome 6 Free", "Noto Sans","Noto Sans JP", sans-serif;
+  font-size: 12.5pt;
+}
+
+window#waybar {
+  background: rgba(18, 22, 28, 0.38);      /* translucent — Hyprland will blur behind */
+  border: 1px solid rgba(255, 182, 193, 0.35);
+  border-radius: 16px;
+  padding: 6px 10px;
+  margin: 0;
+  /* no backdrop-filter in GTK CSS */
+}
+
+#workspaces button {
+  color: #eaf3ff;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  transition: all 120ms ease;
+  border: 1px solid transparent;
+}
+#workspaces button.active {
+  background: rgba(255, 182, 193, 0.28);
+  color: #17212b;
+  border-color: rgba(255, 182, 193, 0.7);
+}
+#workspaces button.urgent {
+  background: rgba(255, 105, 97, 0.35);
+  border-color: rgba(255, 105, 97, 0.8);
+}
+
+#clock,
+#pulseaudio,
+#network,
+#tray,
+#battery,
+#cpu,
+#memory,
+#disk,
+#custom-playerctl,
+#custom-playerlabel,
+#custom-launcher,
+#custom-randwall,
+#backlight {
+  background: rgba(255, 255, 255, 0.10);
+  color: #eaf3ff;
+  margin: 0 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+#clock { font-weight: 700; color: #ffeef3; border-color: rgba(255, 182, 193, 0.55); }
+#battery.warning { color: #ffd25a; }
+#battery.critical { color: #ff6961; }
+#pulseaudio.muted { color: #a7b0bd; }
+
+tooltip {
+  background: rgba(18,22,28,0.92);
+  color: #eaf3ff;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.16);
+}
