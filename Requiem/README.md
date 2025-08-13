@@ -4,6 +4,8 @@ A simple program to help with multiplication problems.
 
 ## Compilation
 
+> Note: furina is up to 10^1000, if I have time, I'll do 10^1e6
+
 ### Windows
 Run the batch file:
 ```batch
