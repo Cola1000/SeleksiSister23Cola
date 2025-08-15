@@ -1,7 +1,3 @@
-Here’s a **drop-in README** you can paste over your current one. It adds clear run modes (your API only vs. compatibility (compat)), and shows exactly how to “compile/build” and **run the tests**.
-
----
-
 # Herta's Vibe Checker — Runnable MVP (FastAPI + SQLite)
 
 Implements the endpoints and flows from your spec:
