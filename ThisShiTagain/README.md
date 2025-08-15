@@ -94,14 +94,10 @@ curl -s -X POST http://127.0.0.1:8000/oauth/token \
 ```bash
 cd ThisShiTagain
 # YOUR API ONLY
-docker compose up --build \
-  -e JWT_SECRET=change_me \
-  -e REQUIRE_MATH_CHALLENGE=true
+JWT_SECRET=change_me REQUIRE_MATH_CHALLENGE=true docker compose up --build
 
-# compat mode (uncomment to use)
-# docker compose up --build \
-#   -e JWT_SECRET=change_me \
-#   -e REQUIRE_MATH_CHALLENGE=false
+# compat mode
+JWT_SECRET=change_me REQUIRE_MATH_CHALLENGE=false docker compose up --build
 ```
 
 API: [http://127.0.0.1:8000](http://127.0.0.1:8000)

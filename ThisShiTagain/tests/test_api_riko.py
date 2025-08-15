@@ -10,7 +10,7 @@ os.environ.setdefault("REQUIRE_MATH_CHALLENGE", "false")
 # If your app uses ROOT_PATH behind a reverse proxy, set it here; otherwise leave empty.
 os.environ.setdefault("ROOT_PATH", "")
 
-from app.main import app  # noqa: E402  (import after env setup)
+from app.main import app
 client = TestClient(app)
 
 def _basic(cid: str, csec: str) -> str:
