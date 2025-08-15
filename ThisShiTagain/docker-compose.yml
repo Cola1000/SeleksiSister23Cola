@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./data.db
+      - JWT_SECRET=${JWT_SECRET:-dev_super_secret_change_me}
+      - DEMO_CLIENT_ID=${DEMO_CLIENT_ID:-demo}
+      - DEMO_CLIENT_SECRET=${DEMO_CLIENT_SECRET:-demo}
+    volumes:
+      - ./:/app
