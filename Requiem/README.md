@@ -9,13 +9,13 @@ A simple program to help with multiplication problems.
 ### Windows
 Run the batch file:
 ```batch
-furina_compile.bat
+requiem.bat
 ```
 
 ### Linux/Mac
 Run the shell script:
 ```bash
-bash furina_compile.sh
+bash requiem.sh
 ```
 
 ## Running the Program
