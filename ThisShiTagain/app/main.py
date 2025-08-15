@@ -16,7 +16,8 @@ from .schemas import (
 from .auth import create_math_challenge, verify_basic_auth, issue_token, get_current_client, ensure_demo_client
 from .nlp_engine import analyze_text
 
-app = FastAPI(title="Herta's Vibe Checker", version="1.0.0")
+app = FastAPI(title="Herta's Vibe Checker", version="1.0.0") 
+app = FastAPI(title="Herta's Vibe Checker", version="1.0.0", root_path=os.getenv("ROOT_PATH",""))  #Change this to change root_path
 
 app.add_middleware(
     CORSMiddleware,

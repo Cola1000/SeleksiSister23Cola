@@ -10,7 +10,7 @@ cd herta-vibe-checker
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 export JWT_SECRET="change_me"   # Windows: set JWT_SECRET=change_me
-uvicorn app.main:app --reload
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers
 ```
 Open http://127.0.0.1:8000/docs
 

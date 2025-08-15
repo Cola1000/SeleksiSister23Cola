@@ -9,5 +9,6 @@ services:
       - JWT_SECRET=${JWT_SECRET:-dev_super_secret_change_me}
       - DEMO_CLIENT_ID=${DEMO_CLIENT_ID:-demo}
       - DEMO_CLIENT_SECRET=${DEMO_CLIENT_SECRET:-demo}
+      # - ROOT_PATH=${ROOT_PATH:-/api}
     volumes:
       - ./:/app
