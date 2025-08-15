@@ -59,3 +59,41 @@ class HistoryItem(BaseModel):
 
 class HistoryOut(BaseModel):
     history: List[HistoryItem]
+
+
+
+
+
+
+
+
+
+class RegisterIn(BaseModel):
+    name: str
+    email: Optional[str] = None
+    uri: Optional[str] = None
+
+class RegisterOut(BaseModel):
+    message: str = "Application registered successfully"
+    client_id: str
+    client_secret: str
+
+class TokenForm(BaseModel):
+    grant_type: str = "client_credentials"
+
+class DetectIn(BaseModel):
+    text: str = Field(..., min_length=1)
+
+class DetectOut(BaseModel):
+    isProfane: bool
+    detected_words: Optional[List[str]] = None
+    message: Optional[str] = None
+
+class CustomWordsIn(BaseModel):
+    action: str  # "add" | "remove"
+    category: str  # "blacklist" | "whitelist"
+    words: List[str]
+
+class CustomWordsOut(BaseModel):
+    success: bool
+    message: str

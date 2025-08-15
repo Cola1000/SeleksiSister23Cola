@@ -13,6 +13,8 @@ from .models import ClientApp, MathChallenge
 JWT_SECRET = os.getenv("JWT_SECRET", "dev_super_secret_change_me")
 JWT_ALG = "HS256"
 TOKEN_TTL_SECS = 3600
+REQUIRE_MATH_CHALLENGE = os.getenv("REQUIRE_MATH_CHALLENGE", "false").lower() in {"1","true","yes"}
+
 
 def _now() -> datetime:
     return datetime.now(timezone.utc)
@@ -38,20 +40,30 @@ def verify_basic_auth(authorization: Optional[str]) -> tuple[str, str]:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Basic header")
 
 def issue_token(db: Session, client_id: str, client_secret: str, challenge_id: str, challenge_answer: int) -> dict:
-    app = db.query(ClientApp).filter_by(client_id=client_id).first()
-    if not app or not bcrypt.verify(client_secret, app.client_secret_hash):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid client credentials")
+    def issue_token(
+    db: Session,
+    client_id: str,
+    client_secret: str,
+    challenge_id: Optional[str] = None,
+    challenge_answer: Optional[int] = None
+    ) -> dict:
+        app = db.query(ClientApp).filter_by(client_id=client_id).first()
+        if not app or not bcrypt.verify(client_secret, app.client_secret_hash):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid client credentials")
 
-    mc = db.query(MathChallenge).filter_by(challenge_id=challenge_id).first()
-    if not mc or mc.expires_at < _now() or mc.answer != challenge_answer:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired challenge")
-
-    db.delete(mc)
-    db.commit()
-
+        if REQUIRE_MATH_CHALLENGE:
+            # original flow enforced
+            mc = db.query(MathChallenge).filter_by(challenge_id=challenge_id).first()
+            if not mc or mc.expires_at < _now() or mc.answer != challenge_answer:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired challenge")
+            db.delete(mc)
+            db.commit()
+    
+    # else: friend’s API requires only client_credentials (no challenge)
     payload = {"cid": client_id, "exp": _now() + timedelta(seconds=TOKEN_TTL_SECS)}
     token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALG)
-    return {"access_token": token, "token_type": "Bearer", "expires_in": TOKEN_TTL_SECS, "scope": "vibe.read vibe.write"}
+    return {"access_token": token, "token_type": "Bearer", "expires_in": TOKEN_TTL_SECS}
+
 
 def get_current_client(authorization: Optional[str] = Header(None), db: Session = Depends(get_db)) -> ClientApp:
     if not authorization or not authorization.startswith("Bearer "):
@@ -76,3 +88,15 @@ def ensure_demo_client(db: Session):
         app = ClientApp(client_id=cid, client_secret_hash=hashed, app_name="Demo App", contact_email=None)
         db.add(app)
         db.commit()
+
+
+def create_client(db: Session, name: str, email: Optional[str] = None, uri: Optional[str] = None) -> tuple[str, str]:
+    # generate credentials
+    cid = "app_" + uuid.uuid4().hex[:20]
+    raw_secret = uuid.uuid4().hex + uuid.uuid4().hex[:8]
+    hashed = bcrypt.hash(raw_secret)
+    app = ClientApp(client_id=cid, client_secret_hash=hashed, app_name=name, contact_email=email)
+    db.add(app)
+    db.commit()
+    return cid, raw_secret
+

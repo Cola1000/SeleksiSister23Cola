@@ -1,19 +1,20 @@
-import os
+import os, re
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import FastAPI, Depends, HTTPException, status, Header, Form
+from fastapi import FastAPI, Depends, HTTPException, status, Header, Form, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from .db import init_db, get_db
-from .models import VibeResult
+from .models import VibeResult, CustomWord
 from .schemas import (
     HealthOut, StatsOut, MathChallengeOut, TokenOut,
     SingleIn, SingleOut, BatchIn, BatchOut, BatchItemOut,
-    HistoryOut, HistoryItem, DetailScores
+    HistoryOut, HistoryItem, DetailScores, 
+    RegisterIn, RegisterOut, DetectIn, DetectOut, CustomWordsIn, CustomWordsOut
 )
-from .auth import create_math_challenge, verify_basic_auth, issue_token, get_current_client, ensure_demo_client
+from .auth import create_math_challenge, verify_basic_auth, issue_token, get_current_client, ensure_demo_client, create_client
 from .nlp_engine import analyze_text
 
 app = FastAPI(title="Herta's Vibe Checker", version="1.0.0") 
@@ -66,15 +67,19 @@ def stats(db: Session = Depends(get_db)):
 def get_math_challenge(db: Session = Depends(get_db)):
     return create_math_challenge(db)
 
-@app.post("/oauth/token", response_model=TokenOut)
-def oauth_token(
-    challenge_id: str = Form(...),
-    challenge_answer: int = Form(...),
+def oauth_token_compatible(
+    grant_type: str = Form("client_credentials"),
     authorization: Optional[str] = Header(None),
+    challenge_id: Optional[str] = Form(None),
+    challenge_answer: Optional[int] = Form(None),
     db: Session = Depends(get_db),
 ):
+    if grant_type != "client_credentials":
+        raise HTTPException(status_code=400, detail="unsupported grant_type")
     client_id, client_secret = verify_basic_auth(authorization)
-    return issue_token(db, client_id, client_secret, challenge_id, challenge_answer)
+    result = issue_token(db, client_id, client_secret, challenge_id, challenge_answer)
+
+    return result
 
 @app.post("/vibe-check/single", response_model=SingleOut)
 def vibe_single(
@@ -153,3 +158,62 @@ def list_vibes(
             timestamp=iso,
         ))
     return HistoryOut(history=items)
+
+# ============== This is so ass ================
+
+@app.post("/register", response_model=RegisterOut)
+def register(payload: RegisterIn, db: Session = Depends(get_db)):
+    cid, csec = create_client(db, name=payload.name, email=payload.email, uri=payload.uri)
+    return RegisterOut(client_id=cid, client_secret=csec)
+
+@app.post("/custom-words", response_model=CustomWordsOut)
+def custom_words(
+    payload: CustomWordsIn,
+    db: Session = Depends(get_db),
+    client = Depends(get_current_client),
+):
+    action = payload.action.lower()
+    category = payload.category.lower()
+    if action not in {"add", "remove"} or category not in {"blacklist", "whitelist"}:
+        raise HTTPException(status_code=400, detail="Invalid action or category")
+
+    words = {w.strip().lower() for w in payload.words if w.strip()}
+    if not words:
+        raise HTTPException(status_code=400, detail="No words provided")
+
+    if action == "add":
+        for w in words:
+            cw = CustomWord(client_id=client.client_id, word=w, category=category)
+            # avoid duplicates thanks to unique constraint
+            try:
+                db.add(cw)
+                db.flush()
+            except Exception:
+                db.rollback()
+        db.commit()
+        return CustomWordsOut(success=True, message=f"Words successfully added to {category}")
+    else:  # remove
+        (db.query(CustomWord)
+           .filter(CustomWord.client_id == client.client_id,
+                   CustomWord.category == category,
+                   CustomWord.word.in_(list(words)))
+           .delete(synchronize_session=False))
+        db.commit()
+        return CustomWordsOut(success=True, message=f"Words successfully removed from {category}")
+
+def _tokenize(text: str) -> list[str]:
+    # simple word tokenizer (unicode letters, numbers); tune as needed
+    return [t.lower() for t in re.findall(r"[0-9A-Za-z_]+", text, flags=re.UNICODE)]
+
+@app.post("/detect", response_model=DetectOut)
+def detect(payload: DetectIn, db: Session = Depends(get_db), client = Depends(get_current_client)):
+    tokens = set(_tokenize(payload.text))
+    # fetch per-client lists
+    rows = db.query(CustomWord).filter(CustomWord.client_id == client.client_id).all()
+    bl = {r.word for r in rows if r.category == "blacklist"}
+    wl = {r.word for r in rows if r.category == "whitelist"}
+    hits = sorted((tokens & bl) - wl)
+    if hits:
+        return DetectOut(isProfane=True, detected_words=hits)
+    else:
+        return DetectOut(isProfane=False, message="No sensitive words detected")
