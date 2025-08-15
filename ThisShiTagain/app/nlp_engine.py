@@ -12,13 +12,13 @@ def analyze_text(text: str) -> dict:
     compound = s.get('compound', 0.0)
     # label mapping per VADER guidelines
     if compound >= 0.05:
-        label = 'positive'
+        label = 'positive' #vibing
         conf = max(s.get('pos', 0.0), compound)
     elif compound <= -0.05:
-        label = 'negative'
+        label = 'negative' # crashing out
         conf = max(s.get('neg', 0.0), -compound)
     else:
-        label = 'neutral'
+        label = 'neutral' # vibing but not too hard
         conf = max(s.get('neu', 0.0), 1.0 - abs(compound))
     return {
         'vibe': label,
